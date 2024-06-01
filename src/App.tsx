@@ -10,8 +10,12 @@ import Home from './pages/Home';
 import Webgis from './pages/Webgis';
 
 function App() {
+  console.log('REACT_APP_STAGE', import.meta.env.REACT_APP_STAGE);
+
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      basename={process.env.REACT_APP_STAGE === 'development' ? '' : '/rescue-station-demo'}
+    >
       <Suspense fallback={<Waiting />}>
         <Layout style={{ width: '100vw', backgroundColor: 'white' }}>
           <Layout.Content>
