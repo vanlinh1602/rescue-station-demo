@@ -10,8 +10,6 @@ import Home from './pages/Home';
 import Webgis from './pages/Webgis';
 
 function App() {
-  console.log('REACT_APP_STAGE', import.meta.env.REACT_APP_STAGE);
-
   return (
     <BrowserRouter
       basename={process.env.REACT_APP_STAGE === 'development' ? '' : '/rescue-station-demo'}

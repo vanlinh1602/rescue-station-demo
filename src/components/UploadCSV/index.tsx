@@ -54,7 +54,6 @@ const UploadFileCSV = ({ onUpload, ...props }: Props) => {
             },
           ],
         };
-        console.log(color);
 
         onUpload({ geoJson, color: `#${color.toHex()}`, name });
         setIsModalOpen(false);

@@ -9,7 +9,6 @@ import { Layer } from './type';
 const Webgis = () => {
   const [layers, setLayers] = useState<Layer[]>(layerDefault);
   const [findStation, setFindStation] = useState(false);
-  console.log(layers);
 
   return (
     <Layout
