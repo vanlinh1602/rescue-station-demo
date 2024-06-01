@@ -26,13 +26,7 @@ const Home = () => {
       </div>
       <div>
         <Typography.Title level={2}>3. Tính năng</Typography.Title>
-        <Typography.Paragraph>
-          <ul>
-            <li>Tìm kiếm trạm cứu hộ gần nhất</li>
-            <li>Xem thông tin chi tiết của trạm cứu hộ</li>
-            <li>Đánh giá trạm cứu hộ</li>
-          </ul>
-        </Typography.Paragraph>
+        <Typography.Paragraph>...Update later</Typography.Paragraph>
       </div>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <Card
