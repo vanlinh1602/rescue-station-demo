@@ -1,5 +1,6 @@
 import './App.css';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css';
 
 import { Layout } from 'antd';
 import { Suspense } from 'react';

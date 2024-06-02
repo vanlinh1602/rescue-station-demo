@@ -1,14 +1,62 @@
-import { Button, Layout, message } from 'antd';
-import { useState } from 'react';
+import {
+  EyeOutlined,
+  FileAddOutlined,
+  FileTextOutlined,
+  MenuOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
+import { Button, Dropdown, Layout, MenuProps, message } from 'antd';
+import _ from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
 
-import { Map, UploadCSV } from '../../components';
+import { Map } from '../../components';
+import { findStationOptions } from '../../libs/options';
+import { ExportLayer, FindStation, ImportLayer } from './components';
 import { layerDefault } from './data';
-import FindRescueStation from './FindRescueStation';
 import { Layer } from './type';
 
 const Webgis = () => {
-  const [layers, setLayers] = useState<Layer[]>(layerDefault);
-  const [findStation, setFindStation] = useState(false);
+  const [layers, setLayers] = useState<CustomObject<Layer>>({});
+  const [findStation, setFindStation] = useState<string>();
+  const [isExport, setIsExport] = useState(false);
+  const [isImport, setIsImport] = useState(false);
+
+  useEffect(() => {
+    const layerData: CustomObject<Layer> = {};
+    layerDefault.forEach((layer) => {
+      layerData[layer.id] = layer;
+    });
+    setLayers(layerData);
+  }, []);
+
+  const items: MenuProps['items'] = useMemo(() => {
+    return [
+      {
+        icon: <SearchOutlined />,
+        key: 'find-station',
+        label: 'Tìm trạm cứu hộ',
+        children: Object.entries(findStationOptions).map(([key, label]) => ({
+          key,
+          label: `Tìm trạm bằng ${label}`,
+        })),
+      },
+      {
+        icon: <EyeOutlined />,
+        key: 'view-station',
+        label: 'Xem trạm cứu hộ',
+      },
+      {
+        icon: <FileAddOutlined />,
+        key: 'add-layer',
+        label: 'Thêm layer',
+      },
+      {
+        icon: <FileTextOutlined />,
+        key: 'export-layer',
+        label: 'Xuất layer',
+      },
+    ];
+  }, []);
 
   return (
     <Layout
@@ -19,52 +67,67 @@ const Webgis = () => {
         height: '100vh',
       }}
     >
-      {findStation ? <FindRescueStation onCancel={() => setFindStation(false)} /> : null}
-      <Layout.Sider
-        width="15%"
-        style={{
-          padding: '20px 0',
-          textAlign: 'center',
-          lineHeight: '40px',
-          backgroundColor: '#fff',
-        }}
-      >
-        <Button type="primary" style={{ width: '80%' }} onClick={() => setFindStation(true)}>
-          Tìm trạm cứu hộ
-        </Button>
-        <Button
-          type="primary"
-          style={{ width: '80%' }}
-          onClick={() => message.info('Tính năng đang phát triển')}
-        >
-          Xem điểm trạm
-        </Button>
-        <UploadCSV
-          type="primary"
-          style={{ width: '80%' }}
-          onUpload={(data) => setLayers((pre) => [...pre, data])}
-        >
-          Thêm layer
-        </UploadCSV>
-      </Layout.Sider>
-      <Layout>
-        <Layout.Header
-          style={{
-            textAlign: 'center',
-            color: '#fff',
-            height: 50,
-            paddingInline: 48,
-            lineHeight: '50px',
-            fontSize: 24,
-            backgroundColor: '#4096ff',
+      {findStation ? (
+        <FindStation formular={findStation} onCancel={() => setFindStation('')} />
+      ) : null}
+      {isImport ? (
+        <ImportLayer
+          onCancel={() => setIsImport(false)}
+          onUpload={(data) => {
+            setLayers((pre) => ({
+              ...pre,
+              [data.id]: data,
+            }));
+            setIsImport(false);
           }}
-        >
-          Bản đồ trạm cứu hộ
-        </Layout.Header>
-        <Layout.Content
-          style={{ height: window.innerHeight - 50, maxHeight: window.innerHeight - 50 }}
-        >
-          <Map layers={layers} />
+        />
+      ) : null}
+      {isExport ? <ExportLayer layers={layers} onCancel={() => setIsExport(false)} /> : null}
+      <Layout>
+        <Layout.Content>
+          <div className="leaflet-top leaflet-left" style={{ marginLeft: 100 }}>
+            <Dropdown
+              className="leaflet-control"
+              menu={{
+                items,
+                onClick: ({ keyPath }) => {
+                  const path = _.last(keyPath);
+
+                  switch (path) {
+                    case 'find-station':
+                      setFindStation(keyPath[0]);
+                      break;
+                    case 'view-station':
+                      message.info('Tính năng đang phát triển');
+                      break;
+                    case 'add-layer':
+                      setIsImport(true);
+                      break;
+                    case 'export-layer':
+                      setIsExport(true);
+                      break;
+                    default:
+                      break;
+                  }
+                },
+              }}
+              placement="bottomLeft"
+            >
+              <Button>
+                Tính năng
+                <MenuOutlined />
+              </Button>
+            </Dropdown>
+          </div>
+          <Map
+            layers={layers}
+            onAddLayer={(newLayer) =>
+              setLayers((pre) => ({
+                ...pre,
+                [newLayer.id]: newLayer,
+              }))
+            }
+          />
         </Layout.Content>
       </Layout>
     </Layout>

@@ -2,6 +2,7 @@ import { Layer } from './type';
 
 export const layerDefault: Layer[] = [
   {
+    id: 'thu_duc',
     name: 'Thủ Đức',
     color: 'red',
     geoJson: {
@@ -9,7 +10,6 @@ export const layerDefault: Layer[] = [
       features: [
         {
           type: 'Feature',
-          id: '02',
           properties: {
             OBJECTID: 140,
             f_code: 'AD02',
@@ -109,6 +109,7 @@ export const layerDefault: Layer[] = [
     },
   },
   {
+    id: 'quan_1',
     name: 'Quận 1',
     color: 'blue',
     geoJson: {
@@ -164,6 +165,7 @@ export const layerDefault: Layer[] = [
     },
   },
   {
+    id: 'binh_thanh',
     name: 'Bình Thạnh',
     color: 'yellow',
     geoJson: {
