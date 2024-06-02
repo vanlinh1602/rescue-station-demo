@@ -1,5 +1,5 @@
 /* eslint-disable no-empty */
-import { DeleteOutlined, InboxOutlined } from '@ant-design/icons';
+import { DeleteOutlined, FileExcelOutlined, InboxOutlined } from '@ant-design/icons';
 import { Button, Col, ColorPicker, Form, Input, Menu, message, Modal, Row, Upload } from 'antd';
 import { BaseButtonProps } from 'antd/es/button/button';
 import { Color } from 'antd/es/color-picker';
@@ -79,6 +79,27 @@ const ImportLayer = ({ onUpload, onCancel }: Props) => {
       />
       <div style={{ marginTop: 10 }}>
         <Form form={form} layout="vertical" initialValues={{ color: new ColorFactory('#3388FF') }}>
+          {importType === 'csv' ? (
+            <Row justify="space-between">
+              <Button
+                onClick={() => {
+                  const csv = Papa.unparse([headerCSV]);
+                  const blob = new Blob([csv], { type: 'text/csv' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'file_mau.csv';
+                  a.click();
+                }}
+                style={{ margin: '10px 0px' }}
+                type="primary"
+                ghost
+              >
+                Tải file mẫu
+                <FileExcelOutlined />
+              </Button>
+            </Row>
+          ) : null}
           <Row justify="space-between">
             <Col span={18}>
               <Form.Item
