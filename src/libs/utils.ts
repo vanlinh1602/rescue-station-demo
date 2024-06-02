@@ -2,6 +2,27 @@ import _ from 'lodash';
 
 import { headerCSV } from './options';
 
+// epsg 4326: [lng, lat]
+// epsg 3857: [x, y]
+
+export const epsg4326toEpsg3857 = (coordinate: number[]) => {
+  const lat = coordinate[1];
+  const lng = coordinate[0];
+  const x = (lng * 20037508.34) / 180;
+  let y = Math.log(Math.tan(((90 + lat) * Math.PI) / 360)) / (Math.PI / 180);
+  y = (y * 20037508.34) / 180;
+  return [x, y];
+};
+
+export const epsg3857toEpsg4326 = (coordinate: number[]) => {
+  const x = coordinate[0];
+  const y = coordinate[1];
+  const lng = (x / 20037508.34) * 180;
+  let lat = (y / 20037508.34) * 180;
+  lat = (180 / Math.PI) * (2 * Math.atan(Math.exp((lat * Math.PI) / 180)) - Math.PI / 2);
+  return [lng, lat];
+};
+
 export const geoJsonToCsv = (geoJson: any) => {
   const rows = _.flatten(
     geoJson.features.map((feature: any, featuresIndex: number) =>
@@ -36,4 +57,54 @@ export const csvToGeoJson = (csv: any[]) => {
       },
     })),
   };
+};
+
+export const csv3857ToGeoJson = (csv: any[], type: string) => {
+  switch (type) {
+    case 'point':
+      return {
+        type: 'FeatureCollection',
+        features: csv.slice(1).map((item) => ({
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'Point',
+            coordinates: epsg3857toEpsg4326([item[1], item[2]]),
+          },
+        })),
+      };
+    case 'line':
+      return {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: csv.slice(1).map((item) => epsg3857toEpsg4326([item[1], item[2]])),
+            },
+          },
+        ],
+      };
+    case 'polygon':
+      return {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'Polygon',
+              coordinates: [csv.slice(1).map((item) => epsg3857toEpsg4326([item[1], item[2]]))],
+            },
+          },
+        ],
+      };
+    default:
+      return {
+        type: 'FeatureCollection',
+        features: [],
+      };
+  }
 };

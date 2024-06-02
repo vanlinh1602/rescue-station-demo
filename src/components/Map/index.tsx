@@ -1,4 +1,5 @@
 import { Button } from 'antd';
+import L from 'leaflet';
 import { useRef, useState } from 'react';
 import { FeatureGroup, GeoJSON, LayersControl, MapContainer, TileLayer } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
@@ -10,6 +11,14 @@ type Props = {
   layers: CustomObject<Layer>;
   onAddLayer: (layer: Layer) => void;
 };
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0/images/marker-icon.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0/images/marker-shadow.png',
+});
 
 const Map = ({ layers, onAddLayer }: Props) => {
   const mapRef = useRef<any>();
@@ -65,9 +74,17 @@ const Map = ({ layers, onAddLayer }: Props) => {
         <FeatureGroup>
           <EditControl
             position="topright"
-            draw={{}}
+            draw={{
+              rectangle: false,
+              circle: false,
+              circlemarker: false,
+            }}
             onCreated={(e) => {
-              setLayerEdit((pre) => [...pre, e.layer._leaflet_id]);
+              setLayerEdit((pre) => [...pre, `${e.layer._leaflet_id}`]);
+            }}
+            onDeleted={(e) => {
+              const ids = Object.keys(e.layers._layers);
+              setLayerEdit((pre) => pre.filter((id) => !ids.includes(id)));
             }}
           />
         </FeatureGroup>

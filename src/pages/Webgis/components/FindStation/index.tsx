@@ -1,10 +1,9 @@
-import { Col, Form, Input, message, Modal, Row } from 'antd';
+import { Button, Col, Form, Input, message, Modal, Row } from 'antd';
 
 import { findStationOptions } from '../../../../libs/options';
 
 type Props = {
   onCancel: () => void;
-  formular: string;
 };
 
 type FormValues = {
@@ -12,9 +11,10 @@ type FormValues = {
   y: number;
 };
 
-const FindStation = ({ formular, onCancel }: Props) => {
+const FindStation = ({ onCancel }: Props) => {
   const [form] = Form.useForm<FormValues>();
-  const handleFindStation = async () => {
+  const handleFindStation = async (key: string) => {
+    console.log(key);
     message.info('Tính năng đang phát triển');
   };
   return (
@@ -22,12 +22,16 @@ const FindStation = ({ formular, onCancel }: Props) => {
       open
       width={400}
       onCancel={onCancel}
-      onOk={handleFindStation}
-      title={`Tìm trạm cứu hộ bằng ${
-        findStationOptions[formular as keyof typeof findStationOptions]
-      }`}
-      okText="Tìm kiếm"
-      cancelText="Hủy"
+      title={'Tìm trạm cứu hộ'}
+      footer={[
+        <Row justify="space-between">
+          {Object.entries(findStationOptions).map(([key, value]) => (
+            <Button type="primary" key={key} onClick={() => handleFindStation(key)}>
+              {`Tìm bằng ${value}`}
+            </Button>
+          ))}
+        </Row>,
+      ]}
     >
       <Form form={form} layout="vertical">
         <Row justify="space-between" gutter={[12, 12]}>

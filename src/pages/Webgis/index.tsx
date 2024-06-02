@@ -1,4 +1,5 @@
 import {
+  DeleteOutlined,
   EyeOutlined,
   FileAddOutlined,
   FileTextOutlined,
@@ -6,20 +7,19 @@ import {
   SearchOutlined,
 } from '@ant-design/icons';
 import { Button, Dropdown, Layout, MenuProps, message } from 'antd';
-import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Map } from '../../components';
-import { findStationOptions } from '../../libs/options';
-import { ExportLayer, FindStation, ImportLayer } from './components';
+import { ExportLayer, FindStation, ImportLayer, RemoveLayer } from './components';
 import { layerDefault } from './data';
 import { Layer } from './type';
 
 const Webgis = () => {
   const [layers, setLayers] = useState<CustomObject<Layer>>({});
-  const [findStation, setFindStation] = useState<string>();
+  const [findStation, setFindStation] = useState<boolean>();
   const [isExport, setIsExport] = useState(false);
   const [isImport, setIsImport] = useState(false);
+  const [isRemove, setIsRemove] = useState(false);
 
   useEffect(() => {
     const layerData: CustomObject<Layer> = {};
@@ -35,10 +35,6 @@ const Webgis = () => {
         icon: <SearchOutlined />,
         key: 'find-station',
         label: 'Tìm trạm cứu hộ',
-        children: Object.entries(findStationOptions).map(([key, label]) => ({
-          key,
-          label: `Tìm trạm bằng ${label}`,
-        })),
       },
       {
         icon: <EyeOutlined />,
@@ -49,6 +45,11 @@ const Webgis = () => {
         icon: <FileAddOutlined />,
         key: 'add-layer',
         label: 'Thêm layer',
+      },
+      {
+        icon: <DeleteOutlined />,
+        key: 'remove-layer',
+        label: 'Xóa layer',
       },
       {
         icon: <FileTextOutlined />,
@@ -67,9 +68,7 @@ const Webgis = () => {
         height: '100vh',
       }}
     >
-      {findStation ? (
-        <FindStation formular={findStation} onCancel={() => setFindStation('')} />
-      ) : null}
+      {findStation ? <FindStation onCancel={() => setFindStation(false)} /> : null}
       {isImport ? (
         <ImportLayer
           onCancel={() => setIsImport(false)}
@@ -83,6 +82,20 @@ const Webgis = () => {
         />
       ) : null}
       {isExport ? <ExportLayer layers={layers} onCancel={() => setIsExport(false)} /> : null}
+      {isRemove ? (
+        <RemoveLayer
+          layers={Object.values(layers).map((layer) => ({ id: layer.id, name: layer.name }))}
+          onRemoveLayer={(ids) => {
+            const rest = { ...layers };
+            ids.forEach((id) => {
+              delete rest[id];
+            });
+            setLayers(rest);
+            setIsRemove(false);
+          }}
+          onCancel={() => setIsRemove(false)}
+        />
+      ) : null}
       <Layout>
         <Layout.Content>
           <div className="leaflet-top leaflet-left" style={{ marginLeft: 100 }}>
@@ -90,18 +103,19 @@ const Webgis = () => {
               className="leaflet-control"
               menu={{
                 items,
-                onClick: ({ keyPath }) => {
-                  const path = _.last(keyPath);
-
-                  switch (path) {
+                onClick: ({ key }) => {
+                  switch (key) {
                     case 'find-station':
-                      setFindStation(keyPath[0]);
+                      setFindStation(true);
                       break;
                     case 'view-station':
                       message.info('Tính năng đang phát triển');
                       break;
                     case 'add-layer':
                       setIsImport(true);
+                      break;
+                    case 'remove-layer':
+                      setIsRemove(true);
                       break;
                     case 'export-layer':
                       setIsExport(true);

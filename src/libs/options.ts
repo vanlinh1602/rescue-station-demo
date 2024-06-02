@@ -16,3 +16,11 @@ export const headerCSV = [
   'lat',
   'lng',
 ];
+
+export const headerCSV3857 = ['id', 'x', 'y'];
+
+export const mapingType = {
+  point: 'Point',
+  line: 'LineString',
+  polygon: 'Polygon',
+};
